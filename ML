@@ -1,0 +1,103 @@
+import numpy as np
+import pandas as pd
+import sklearn.datasets 
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+"""Data Collection and Processing"""
+
+#Loading Data from Sklearn
+breast_cancer_dataset = sklearn.datasets.load_breast_cancer()
+
+print(breast_cancer_dataset)
+
+#Loading data to pandas data frame
+data_frame = pd.DataFrame(breast_cancer_dataset.data, columns = breast_cancer_dataset.feature_names)
+
+#printing first 5 rows of the data
+data_frame.head()
+
+#adding the 'target' columns to the data frame
+data_frame['label'] = breast_cancer_dataset.target
+
+data_frame.tail()
+
+#number of row and coloums in data frame
+data_frame.shape
+
+#getting some information from data 
+data_frame.info()
+
+#checking for missing values
+data_frame.isnull().sum()
+
+#statical measure about the data set
+data_frame.describe()
+
+#checking the the distrabution of target variable 
+data_frame['label'].value_counts()
+
+"""1 --> Benign
+2 --> Malignant
+"""
+
+data_frame.groupby('label').mean()
+
+#Saprating featue and target
+X = data_frame.drop(columns='label', axis=1)
+Y = data_frame['label']
+
+print(X)
+print(Y)
+
+"""Splitting the data into traning data & Test Data"""
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=2)
+
+print(X.shape, X_test.shape, X_train.shape)
+
+"""Model Tranig
+
+Logistic regrassion
+"""
+
+model = LogisticRegression()
+
+#Traning The Logistic Regrassion model using traning data
+model.fit(X_train, Y_train)
+
+"""Model Evalution
+
+Acccuracy Score
+"""
+
+#Accuracy on train Data 
+X_train_predictin = model.predict(X_train)
+training_data_accuracy = accuracy_score(Y_train, X_train_predictin)
+
+print('Accuracy on traning data =', training_data_accuracy)
+
+#Accuracy on test Data 
+X_test_predictin = model.predict(X_test)
+test_data_accuracy = accuracy_score(Y_test, X_test_predictin)
+
+print('Accuracy on test data =', test_data_accuracy)
+
+"""Building a Cancer Pridective System"""
+
+input_data = (20.29,14.34,135.1,1297,0.1003,0.1328,0.198,0.1043,0.1809,0.05883,0.7572,0.7813,5.438,94.44,0.01149,0.02461,0.05688,0.01885,0.01756,0.005115,22.54,16.67,152.2,1575,0.1374,0.205,0.4,0.1625,0.2364,0.07678)
+#change input data to numpy array 
+input_data_as_numpy_array = np.asarray(input_data)
+
+#reshape the numpy array as we are predicting for one datapoint
+input_data_as_numpy_array = input_data_as_numpy_array.reshape(1,-1)
+
+prediction = model.predict(input_data_as_numpy_array)
+print(prediction)
+
+if (prediction[0] == 0):
+  print("The Breast Cancer is Malignant")
+
+else:
+  print("The Breast Cancer is Benign")
